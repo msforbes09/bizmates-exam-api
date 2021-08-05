@@ -10,6 +10,21 @@ use Illuminate\Http\JsonResponse;
 class WeatherController extends Controller
 {
     /**
+     * @var OpenWeatherService $service
+     */
+    protected $service;
+
+    /**
+     * WeatherController constructor
+     *
+     * @param OpenWeatherService $service
+     */
+    public function __construct(OpenWeatherService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
      * Check weather
      *
      * @param WeatherCheckRequest $request
@@ -18,7 +33,7 @@ class WeatherController extends Controller
     public function check(WeatherCheckRequest $request)
     {
         try {
-            $weather = (new OpenWeatherService)->check($request->input('city'));
+            $weather = $this->service->check($request->input('city'));
 
             return response()->json(['data' => $weather], 200);
         } catch (OpenWeatherRequestException $th) {
