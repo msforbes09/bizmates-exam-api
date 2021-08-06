@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Exceptions\OpenWeatherRequestException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class OpenWeatherService
@@ -41,14 +43,20 @@ class OpenWeatherService
      */
     protected function get(array $params) : array
     {
-        $host = config('weather.url');
+        try {
+            $host = config('weather.url');
 
-        $response = Http::get($host, $params);
+            $response = Http::get($host, $params);
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            throw new OpenWeatherRequestException();
+        } catch (RequestException $e) {
+            throw new OpenWeatherRequestException($e);
+        } catch (ConnectionException $e) {
+            throw new OpenWeatherRequestException($e);
         }
-
-        throw new OpenWeatherRequestException();
     }
 }

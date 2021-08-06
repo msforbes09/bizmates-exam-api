@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FourSquareRequestException;
+use App\Http\Requests\VenueSearchRequest;
 use App\Services\FourSquareService;
 
 class VenueController extends Controller
@@ -35,6 +36,23 @@ class VenueController extends Controller
             return response()->json(['data' => $categories], 200);
         } catch (FourSquareRequestException $e) {
             return response()->json(['message' => 'Sorry! Venue categories not available right now!'], 400);
+        }
+    }
+
+    /**
+     * Search venues
+     *
+     * @param VenueSearchRequest $request
+     * @return JsonResponse
+     */
+    public function search(VenueSearchRequest $request)
+    {
+        try {
+            $venues = $this->service->search($request);
+
+            return response()->json(['data' => $venues], 200);
+        } catch (FourSquareRequestException $e) {
+            return response()->json(['message' => 'Sorry! Venue search not available right now!'], 400);
         }
     }
 }

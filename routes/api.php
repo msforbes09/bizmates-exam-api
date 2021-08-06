@@ -8,4 +8,5 @@ Route::get('weather', [WeatherController::class, 'check']);
 
 Route::prefix('venue')->group(function () {
     Route::get('categories', [VenueController::class, 'categories']);
+    Route::get('search', [VenueController::class, 'search']);
 });

@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\FourSquareRequestException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
@@ -20,11 +23,46 @@ class FourSquareService
 
         $response = $this->get($url, $params);
 
-        return collect($response['response']['categories'])->map(function ($q) {
+        return collect($response['response']['categories'])->map(function ($category) {
             return [
-                'id' => $q['id'],
-                'name' => $q['name'],
-                'icon' => $q['icon']['prefix'] . '64' . $q['icon']['suffix'],
+                'id' => $category['id'],
+                'name' => $category['name'],
+                'icon' => $category['icon']['prefix'] . '64' . $category['icon']['suffix'],
+                'sub_categories' => collect($category['categories'])->map(function ($subCategory) {
+                    return [
+                        'id' => $subCategory['id'],
+                        'name' => $subCategory['name'],
+                        'icon' => $subCategory['icon']['prefix'] . '64' . $subCategory['icon']['suffix'],
+                    ];
+                })
+            ];
+        });
+    }
+
+    /**
+     * Search
+     *
+     * @param Request $data
+     * @return Collection
+     */
+    public function search(Request $data)
+    {
+        $params = $this->generateParams();
+        $params['near'] = $data->get('city') . ',JP';
+        $params['categoryId'] = $data->get('category');
+        $params['query'] = $data->get('q');
+        $params['limit'] = 50;
+
+        $url = config('venue.url') . '/search';
+
+        $response = $this->get($url, $params);
+
+        return collect($response['response']['venues'])->map(function ($venue) {
+            return [
+                'name' => $venue['name'],
+                'address' => implode(' ', $venue['location']['formattedAddress']),
+                'lat' => $venue['location']['lat'],
+                'lng' => $venue['location']['lng'],
             ];
         });
     }
@@ -51,14 +89,20 @@ class FourSquareService
      * @return array
      * @throws FourSquareRequestException
      */
-    protected function get(string $url, array $params) : array
+    protected function get(string $url, array $params)
     {
-        $response = Http::get($url, $params);
+        try {
+            $response = Http::withHeaders(['Accept-Language' => 'en'])->get($url, $params);
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            throw new FourSquareRequestException();
+        } catch (RequestException $e) {
+            throw new FourSquareRequestException($e);
+        } catch (ConnectionException $e) {
+            throw new FourSquareRequestException($e);
         }
-
-        throw new FourSquareRequestException();
     }
 }
