@@ -69,7 +69,7 @@ class VenueController extends Controller
 
             return response()->json(['data' => $details], 200);
         } catch (FourSquareRequestException $e) {
-            return response()->json(['message' => 'Sorry! Venue search not available right now!'], 400);
+            return response()->json(['message' => 'Sorry! Venue details not available right now!'], 400);
         }
     }
 }

@@ -89,6 +89,7 @@ class FourSquareService
             'address' => implode(' ', $details['location']['formattedAddress']),
             'website' => $details['url'] ?? $details['shortUrl'],
             'likes' => $details['likes']['count'],
+            'rating' => $details['rating'] ?? null,
             'photo' => isset($details['bestPhoto']) ?
                 (
                     $details['bestPhoto']['prefix'] .
