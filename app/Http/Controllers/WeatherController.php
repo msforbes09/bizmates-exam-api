@@ -50,7 +50,7 @@ class WeatherController extends Controller
     public function forecast(WeatherCheckRequest $request)
     {
         try {
-            return $weather = $this->service->getForecast($request->input('city'));
+            $weather = $this->service->getForecast($request->input('city'));
 
             return response()->json(['data' => $weather], 200);
         } catch (OpenWeatherRequestException $th) {

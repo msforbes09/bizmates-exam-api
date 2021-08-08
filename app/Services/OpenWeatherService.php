@@ -44,7 +44,7 @@ class OpenWeatherService
 
         return collect($weather['list'])->map(function ($i) {
             return [
-                'date_time' => (new Carbon($i['dt']))->format('D, M j, h:i A'),
+                'date_time' => (new Carbon($i['dt']))->format('M j, h:i A'),
                 'icon' => 'https://openweathermap.org/img/wn/' . $i['weather'][0]['icon'] . '@2x.png',
                 'description' => ucwords($i['weather'][0]['description']) . '.',
                 'temp_min' => round($i['main']['temp_min']),

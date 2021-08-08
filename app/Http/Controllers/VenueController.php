@@ -55,4 +55,21 @@ class VenueController extends Controller
             return response()->json(['message' => 'Sorry! Venue search not available right now!'], 400);
         }
     }
+
+    /**
+     * Show details
+     *
+     * @param mixed $id
+     * @return JsonResponse
+     */
+    public function details($id)
+    {
+        try {
+            $details = $this->service->getDetails($id);
+
+            return response()->json(['data' => $details], 200);
+        } catch (FourSquareRequestException $e) {
+            return response()->json(['message' => 'Sorry! Venue search not available right now!'], 400);
+        }
+    }
 }

@@ -59,12 +59,61 @@ class FourSquareService
 
         return collect($response['response']['venues'])->map(function ($venue) {
             return [
+                'id' => $venue['id'],
                 'name' => $venue['name'],
                 'address' => implode(' ', $venue['location']['formattedAddress']),
                 'lat' => $venue['location']['lat'],
                 'lng' => $venue['location']['lng'],
+                'category_image' => $venue['categories'][0] ? ($venue['categories'][0]['icon']['prefix'] . '64' . $venue['categories'][0]['icon']['suffix']) : null,
             ];
         });
+    }
+
+    /**
+     * Get details
+     *
+     * @param string $venueId
+     * @return array
+     */
+    public function getDetails(string $venueId)
+    {
+        $params = $this->generateParams();
+        $url = config('venue.url') . '/' . $venueId;
+
+        $response = $this->get($url, $params);
+
+        $details = $response['response']['venue'];
+
+        return [
+            'name' => $details['name'],
+            'address' => implode(' ', $details['location']['formattedAddress']),
+            'website' => $details['url'],
+            'likes' => $details['likes']['count'],
+            'photo' => $details['bestPhoto'] ?
+                (
+                    $details['bestPhoto']['prefix'] .
+                    $details['bestPhoto']['width'] . 'x' .
+                    $details['bestPhoto']['height'] .
+                    $details['bestPhoto']['suffix']
+                ) : null,
+            'contacts' => collect($details['contact'])
+                ->only(['formattedPhone', 'twitter', 'instagram', 'facebook'])
+                ->map(function ($val, $key) {
+                    if ($key == 'facebook') {
+                        return 'https://www.facebook.com/' . $val;
+                    }
+
+                    if ($key == 'twitter') {
+                        return 'https://www.twitter.com/' . $val;
+                    }
+
+                    if ($key == 'instagram') {
+                        return 'https://www.instagram.com/' . $val;
+                    }
+
+                    return $val;
+                })
+        ];
     }
 
     /**
