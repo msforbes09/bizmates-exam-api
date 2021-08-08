@@ -5,11 +5,11 @@ namespace App\Enums;
 class CityEnum
 {
     const CITIES = [
-        'TOKYO',
-        'YOKOHAMA',
-        'KYOT',
-        'OSAKA',
-        'SAPPORO',
-        'NAGOYA'
+        'tokyo',
+        'yokohama',
+        'kyoto',
+        'osaka',
+        'sapporo',
+        'nagoya'
     ];
 }
