@@ -64,7 +64,7 @@ class FourSquareService
                 'address' => implode(' ', $venue['location']['formattedAddress']),
                 'lat' => $venue['location']['lat'],
                 'lng' => $venue['location']['lng'],
-                'category_image' => $venue['categories'][0] ? ($venue['categories'][0]['icon']['prefix'] . '64' . $venue['categories'][0]['icon']['suffix']) : null,
+                'category_image' => isset($venue['categories'][0]) ? ($venue['categories'][0]['icon']['prefix'] . '64' . $venue['categories'][0]['icon']['suffix']) : null,
             ];
         });
     }

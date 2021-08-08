@@ -65,7 +65,6 @@ class OpenWeatherService
             'q' => $q . ',JP',
             'appid' => config('weather.api_key'),
             'units' => 'metric',
-            'cnt' => 20,
         ];
     }
 
