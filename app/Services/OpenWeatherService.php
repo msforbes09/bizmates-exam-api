@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\OpenWeatherRequestException;
+use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -15,9 +16,41 @@ class OpenWeatherService
      * @param string $city
      * @return array
      */
-    public function check(string $city) : array
+    public function check(string $city)
     {
-        return $this->get($this->generateParams($city));
+        $url = config('weather.url') . '/weather';
+
+        $weather = $this->get($url, $this->generateParams($city));
+
+        return [
+            'description' => ucwords($weather['weather'][0]['description']) . '.',
+            'icon' => 'https://openweathermap.org/img/wn/' . $weather['weather'][0]['icon'] . '@2x.png',
+            'feels_like' => round($weather['main']['feels_like']),
+            'date_time' => (new Carbon())->format('D, M j, h:i A')
+        ];
+    }
+
+    /**
+     * Get weather forecast
+     *
+     * @param string $city
+     * @return Collection
+     */
+    public function getForecast(string $city)
+    {
+        $url = config('weather.url') . '/forecast';
+
+        $weather = $this->get($url, $this->generateParams($city));
+
+        return collect($weather['list'])->map(function ($i) {
+            return [
+                'date_time' => (new Carbon($i['dt']))->format('D, M j, h:i A'),
+                'icon' => 'https://openweathermap.org/img/wn/' . $i['weather'][0]['icon'] . '@2x.png',
+                'description' => ucwords($i['weather'][0]['description']) . '.',
+                'temp_min' => round($i['main']['temp_min']),
+                'temp_max' => round($i['main']['temp_max']),
+            ];
+        });
     }
 
     /**
@@ -30,7 +63,9 @@ class OpenWeatherService
     {
         return [
             'q' => $q . ',JP',
-            'appid' => config('weather.api_key')
+            'appid' => config('weather.api_key'),
+            'units' => 'metric',
+            'cnt' => 20,
         ];
     }
 
@@ -41,12 +76,10 @@ class OpenWeatherService
      * @return array
      * @throws OpenWeatherRequestException
      */
-    protected function get(array $params) : array
+    protected function get(string $url, array $params) : array
     {
         try {
-            $host = config('weather.url');
-
-            $response = Http::get($host, $params);
+            $response = Http::get($url, $params);
 
             if ($response->successful()) {
                 return $response->json();
