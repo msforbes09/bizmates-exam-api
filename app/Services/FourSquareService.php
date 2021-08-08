@@ -87,15 +87,15 @@ class FourSquareService
         return [
             'name' => $details['name'],
             'address' => implode(' ', $details['location']['formattedAddress']),
-            'website' => $details['url'],
+            'website' => $details['url'] ?? $details['shortUrl'],
             'likes' => $details['likes']['count'],
-            'photo' => $details['bestPhoto'] ?
+            'photo' => isset($details['bestPhoto']) ?
                 (
                     $details['bestPhoto']['prefix'] .
                     $details['bestPhoto']['width'] . 'x' .
                     $details['bestPhoto']['height'] .
                     $details['bestPhoto']['suffix']
-                ) : null,
+                ) : 'https://st4.depositphotos.com/14953852/24787/v/600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg',
             'contacts' => collect($details['contact'])
                 ->only(['formattedPhone', 'twitter', 'instagram', 'facebook'])
                 ->map(function ($val, $key) {
