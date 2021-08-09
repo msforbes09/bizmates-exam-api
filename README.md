@@ -27,3 +27,9 @@
 -   Venue categories
 -   Venue search
 -   Venue details
+
+_\* Please provide explanation on why your UI and UX implementation and code implementation is the best. And write it in readme.md and include it in your repository._
+
+-   Object Oriented Programming Principle applied.
+-   Solid Principle applied.
+-   PSR-2 code formatting.
